@@ -8,11 +8,13 @@ import (
 
 	"grok-inspection/cpasdk/pluginabi"
 	"grok-inspection/cpasdk/pluginapi"
+
+	"gopkg.in/yaml.v3"
 )
 
 const (
 	pluginName            = "grok-inspection"
-	pluginVersion         = "0.1.12"
+	pluginVersion         = "0.2.0"
 	resourceContentType   = "text/html; charset=utf-8"
 	jsonContentType       = "application/json; charset=utf-8"
 	managementRoutePrefix = "/plugins/" + pluginName
@@ -28,10 +30,59 @@ type registrationCapabilities struct {
 	ManagementAPI bool `json:"management_api"`
 }
 
+type lifecycleRequest struct {
+	ConfigYAML []byte `json:"config_yaml"`
+}
+
+type pluginConfig struct {
+	InspectIntervalHours  float64 `yaml:"inspect_interval_hours"`
+	ReenableIntervalHours float64 `yaml:"reenable_interval_hours"`
+	ManagementKey         string  `yaml:"management_key"`
+}
+
+func parsePluginConfig(configYAML []byte) schedulerConfig {
+	cfg := schedulerConfig{
+		InspectIntervalHours:  24,
+		ReenableIntervalHours: 48,
+	}
+	if len(configYAML) == 0 {
+		return cfg
+	}
+	var raw pluginConfig
+	if err := yaml.Unmarshal(configYAML, &raw); err == nil {
+		if raw.InspectIntervalHours >= 0 {
+			cfg.InspectIntervalHours = raw.InspectIntervalHours
+		}
+		if raw.ReenableIntervalHours >= 0 {
+			cfg.ReenableIntervalHours = raw.ReenableIntervalHours
+		}
+		cfg.ManagementKey = raw.ManagementKey
+	}
+	return cfg
+}
+
 func handleMethod(method string, request []byte) ([]byte, error) {
 	switch method {
-	case pluginabi.MethodPluginRegister, pluginabi.MethodPluginReconfigure:
+	case pluginabi.MethodPluginRegister:
+		var req lifecycleRequest
+		if len(request) > 0 {
+			_ = json.Unmarshal(request, &req)
+		}
+		cfg := parsePluginConfig(req.ConfigYAML)
+		scheduler.reconfigure(cfg)
+		scheduler.start()
 		return okEnvelope(pluginRegistration())
+	case pluginabi.MethodPluginReconfigure:
+		var req lifecycleRequest
+		if len(request) > 0 {
+			_ = json.Unmarshal(request, &req)
+		}
+		cfg := parsePluginConfig(req.ConfigYAML)
+		scheduler.reconfigure(cfg)
+		return okEnvelope(pluginRegistration())
+	case pluginabi.MethodPluginShutdown:
+		scheduler.stop()
+		return okEnvelope(map[string]bool{"ok": true})
 	case pluginabi.MethodManagementRegister:
 		return okEnvelope(managementRegistration())
 	case pluginabi.MethodManagementHandle:
@@ -47,9 +98,25 @@ func pluginRegistration() registration {
 		Metadata: pluginapi.Metadata{
 			Name:             pluginName,
 			Version:          pluginVersion,
-			Author:           "ywddd",
-			GitHubRepository: "https://github.com/ywddd/grok-inspection",
-			ConfigFields:     []pluginapi.ConfigField{},
+			Author:           "ivanarifin",
+			GitHubRepository: "https://github.com/ivanarifin/grok-inspection",
+			ConfigFields: []pluginapi.ConfigField{
+				{
+					Name:        "inspect_interval_hours",
+					Type:        pluginapi.ConfigFieldTypeNumber,
+					Description: "Auto-inspect interval in hours (0 = disabled, default: 24)",
+				},
+				{
+					Name:        "reenable_interval_hours",
+					Type:        pluginapi.ConfigFieldTypeNumber,
+					Description: "Auto re-enable disabled accounts interval in hours (0 = disabled, default: 48)",
+				},
+				{
+					Name:        "management_key",
+					Type:        pluginapi.ConfigFieldTypeString,
+					Description: "CPA management key for auto-scheduler apply actions",
+				},
+			},
 		},
 		Capabilities: registrationCapabilities{ManagementAPI: true},
 	}
@@ -67,8 +134,8 @@ func managementRegistration() pluginapi.ManagementRegistrationResponse {
 		Resources: []pluginapi.ResourceRoute{
 			{
 				Path:        "/status",
-				Menu:        "Grok 账号巡检",
-				Description: "服务端巡检 xAI/Grok 账号健康、权限与额度。",
+				Menu:        "Grok Account Inspection",
+				Description: "Server-side xAI/Grok account health, permission, and quota inspection.",
 			},
 		},
 	}
@@ -105,7 +172,7 @@ func dispatchManagement(req pluginapi.ManagementRequest) pluginapi.ManagementRes
 		if err := engine.start(body); err != nil {
 			status := http.StatusConflict
 			msg := err.Error()
-			if strings.Contains(msg, "workers must") || strings.Contains(msg, "增量巡检") || strings.Contains(msg, "分类巡检") || strings.Contains(msg, "当前分类") || strings.Contains(msg, "busy") {
+			if strings.Contains(msg, "workers must") || strings.Contains(msg, "incremental") || strings.Contains(msg, "classify") || strings.Contains(msg, "busy") {
 				status = http.StatusBadRequest
 				if strings.Contains(msg, "busy") || strings.Contains(msg, "already running") {
 					status = http.StatusConflict
@@ -226,4 +293,3 @@ func jsonResponse(statusCode int, payload any) pluginapi.ManagementResponse {
 		Body:       raw,
 	}
 }
-

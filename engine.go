@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"sort"
 	"strings"
 	"sync"
@@ -763,4 +764,31 @@ func isAccountProbeTimeout(result accountResult) bool {
 		return false
 	}
 	return isProbeTimeoutErr(fmt.Errorf("%s %s", result.Reason, result.ErrorMessage))
+}
+
+// reenableDisabled re-enables all disabled xAI accounts via the management API.
+// It lists all auth files, filters for disabled ones, and enables them.
+func (e *inspectionEngine) reenableDisabled(headers http.Header) {
+	list, err := callHostAuthList()
+	if err != nil {
+		return
+	}
+	password := resolveManagementPassword(headers)
+	for _, file := range list.Files {
+		if !file.Disabled {
+			continue
+		}
+		// Only re-enable xAI/Grok accounts
+		if !shouldInspectEntry(file.Provider, file.Name, file.Type, file.Disabled, file.Status, true, false) {
+			continue
+		}
+		name := firstNonEmpty(file.Name, file.AuthIndex, file.ID)
+		if name == "" {
+			continue
+		}
+		// Enable the account (ignore errors — best-effort)
+		_ = setAuthDisabled(name, false, password, headers, false)
+	}
+	// Persist once after all re-enables
+	e.persist()
 }

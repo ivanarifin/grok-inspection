@@ -9,7 +9,7 @@ func renderUIPage(pluginID string) []byte {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Grok 账号巡检</title>
+  <title>Grok Account Inspection</title>
   <style>
     :root { color-scheme: light; }
     * { box-sizing: border-box; }
@@ -164,45 +164,45 @@ func renderUIPage(pluginID string) []byte {
     <div class="hero">
       <div>
         <div class="badge">xAI / Grok · CPA Plugin</div>
-        <h1>Grok 账号巡检</h1>
-        <p class="sub">「开始巡检」清空并重测全部；「增量巡检」只测新增账号；「巡检当前分类」只重测所选分类（需先点分类卡片）；「批量操作」只作用于当前筛选；结果会自动保存。</p>
+        <h1>Grok Account Inspection</h1>
+        <p class="sub">"Start Inspection" clears and re-tests all; "Incremental" tests new accounts only; "Inspect Class" re-tests selected classification (click a card first); "Bulk Actions" apply to current filter only.</p>
       </div>
       <div class="controls">
         <div class="key-row" id="keyRow">
-          <input id="managementKey" type="password" autocomplete="current-password" placeholder="CPA Management Key（可自动读取管理面板）">
+          <input id="managementKey" type="password" autocomplete="current-password" placeholder="CPA Management Key (auto-filled if availablemanagement panel）">
           <span class="hint" id="keyHint" style="font-size:12px;color:#64748b"></span>
         </div>
-        <label class="ctl">并发 <input id="workers" type="number" min="1" max="16" step="1" value="6" title="1-16 的整数"></label>
-        <label class="ctl"><input id="includeDisabled" type="checkbox"> 包含已禁用</label>
-        <label class="ctl"><input id="onlyDisabled" type="checkbox"> 仅巡检已禁用</label>
-        <button id="stopBtn" disabled>停止</button>
-        <button id="applyBtn" class="soft" disabled>执行建议操作</button>
-        <button id="incrBtn" class="soft" disabled title="只检测 Auth 中相对上次结果新增的账号">增量巡检</button>
-        <button id="filterRunBtn" class="soft" disabled title="只重新探测当前卡片筛选分类下的账号，保留其他结果">巡检当前分类</button>
-        <button id="runBtn" class="primary">开始巡检</button>
+        <label class="ctl">Concurrency <input id="workers" type="number" min="1" max="16" step="1" value="6" title="1-16 integer"></label>
+        <label class="ctl"><input id="includeDisabled" type="checkbox"> Include disabled</label>
+        <label class="ctl"><input id="onlyDisabled" type="checkbox"> Only disabled</label>
+        <button id="stopBtn" disabled>Stop</button>
+        <button id="applyBtn" class="soft" disabled>Apply Recommended</button>
+        <button id="incrBtn" class="soft" disabled title="Only test accounts new since the last inspection">Incremental</button>
+        <button id="filterRunBtn" class="soft" disabled title="Re-probe accounts in current classification only, keep other results">Inspect Current Classification</button>
+        <button id="runBtn" class="primary">Start Inspection</button>
       </div>
     </div>
     <div id="summary" class="summary"></div>
     <div class="bar">
       <div class="actions-row">
-        <button id="batchExportBtn" type="button" disabled>批量导出</button>
-        <button id="batchDisableBtn" class="soft" type="button" disabled>批量禁用</button>
-        <button id="batchEnableBtn" class="soft" type="button" disabled>批量启用</button>
-        <button id="batchDeleteBtn" class="danger" type="button" disabled>批量删除</button>
-        <span class="hint" id="exportHint">点击上方卡片切换分类；禁用/启用数量按当前分类下列表的启用/禁用状态统计</span>
+        <button id="batchExportBtn" type="button" disabled>Batch Export</button>
+        <button id="batchDisableBtn" class="soft" type="button" disabled>Bulk Disable</button>
+        <button id="batchEnableBtn" class="soft" type="button" disabled>Bulk Enable</button>
+        <button id="batchDeleteBtn" class="danger" type="button" disabled>Bulk Delete</button>
+        <span class="hint" id="exportHint">Click a card above to switch classification; Disable/Enable counts based on current filtered list.</span>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;min-width:0;max-width:100%%">
-        <div id="progress" class="progress">等待开始</div>
+        <div id="progress" class="progress">Waiting to start</div>
         <pre id="error" class="err" style="margin:0;max-width:min(720px,100%%);text-align:left;font-size:12px;line-height:1.45;white-space:pre-wrap;word-break:break-word"></pre>
       </div>
     </div>
     <div id="confirmModal" class="modal hidden" aria-hidden="true">
       <div class="modal-card" role="dialog" aria-modal="true">
-        <div id="confirmTitle" class="modal-title">确认操作</div>
+        <div id="confirmTitle" class="modal-title">ConfirmAction</div>
         <div id="confirmMsg" class="modal-msg"></div>
         <div class="modal-actions">
-          <button type="button" id="confirmCancel">取消</button>
-          <button type="button" id="confirmOk" class="primary">确定</button>
+          <button type="button" id="confirmCancel">Cancel</button>
+          <button type="button" id="confirmOk" class="primary">OK</button>
         </div>
       </div>
     </div>
@@ -211,13 +211,13 @@ func renderUIPage(pluginID string) []byte {
         <table>
           <thead>
             <tr>
-              <th>账号</th><th class="col-status">当前状态</th><th class="col-result">检测结果</th><th class="col-http">HTTP</th><th class="col-model">模型</th><th class="col-action">建议</th><th class="col-reason">原因</th><th class="col-ops">操作</th>
+              <th>Account</th><th class="col-status">Current Status</th><th class="col-result">Result</th><th class="col-http">HTTP</th><th class="col-model">Model</th><th class="col-action">Recommendation</th><th class="col-reason">Reason</th><th class="col-ops">Action</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
-      <div id="empty" class="empty">请输入 CPA Management Key 后加载巡检状态</div>
+      <div id="empty" class="empty">Enter CPA Management Key to load inspection status</div>
       <div id="pager" class="pager"></div>
     </div>
   </div>
@@ -305,11 +305,11 @@ func renderUIPage(pluginID string) []byte {
   function parseWorkersStrict() {
     const raw = String($('workers').value == null ? '' : $('workers').value).trim();
     if (!/^\d+$/.test(raw)) {
-      throw new Error('并发必须是 ' + WORKERS_MIN + '-' + WORKERS_MAX + ' 的整数（当前默认 ' + WORKERS_DEFAULT + '）');
+      throw new Error('Concurrency must be ' + WORKERS_MIN + '-' + WORKERS_MAX + ' integer (current default ' + WORKERS_DEFAULT + '）');
     }
     const n = Number(raw);
     if (!Number.isInteger(n) || n < WORKERS_MIN || n > WORKERS_MAX) {
-      throw new Error('并发必须在 ' + WORKERS_MIN + '-' + WORKERS_MAX + ' 之间');
+      throw new Error('Concurrency must be between ' + WORKERS_MIN + '-' + WORKERS_MAX + ' to ');
     }
     return n;
   }
@@ -418,12 +418,12 @@ func renderUIPage(pluginID string) []byte {
     const hint = $('keyHint');
     if (!hint) return;
     if (hasManagementKey() && keySource === 'panel') {
-      hint.textContent = '已从管理面板自动读取 Key（无需手填）';
-      keyInput.placeholder = '已自动填充（可改）';
+      hint.textContent = 'Key auto-loaded from management panel (enter manually if empty)';
+      keyInput.placeholder = 'Auto-filled (editable)';
     } else if (hasManagementKey() && keySource === 'plugin') {
-      hint.textContent = '已使用本插件本地保存的 Key';
+      hint.textContent = 'Using locally saved key from this plugin';
     } else {
-      hint.textContent = '未读到 Key：请先登录 /management.html 并勾选记住密码，或在此手动填写';
+      hint.textContent = 'Key not found: please log in at /management.html and save password, or enter manually';
     }
   }
   const hasManagementKey = () => !!keyInput.value.trim();
@@ -466,7 +466,7 @@ func renderUIPage(pluginID string) []byte {
   function confirmDialog(title, message) {
     return new Promise((resolve) => {
       confirmResolver = resolve;
-      $('confirmTitle').textContent = title || '确认操作';
+      $('confirmTitle').textContent = title || 'ConfirmAction';
       $('confirmMsg').textContent = message || '';
       $('confirmModal').classList.remove('hidden');
       $('confirmModal').setAttribute('aria-hidden', 'false');
@@ -499,12 +499,12 @@ func renderUIPage(pluginID string) []byte {
       } else if (mode === 'filter') {
         const classes = classificationsForFilter(state.filter);
         if (!classes.length) {
-          showErr('请先点击分类卡片选择一个分类，再巡检当前分类');
+          showErr('Please click a Classification card first, then inspect Current Classification');
           return;
         }
         const count = filtered().length;
         if (!count) {
-          showErr('当前分类「' + filterLabel() + '」下没有可巡检账号');
+          showErr('No accounts to inspect in current classification: ' + filterLabel());
           return;
         }
         body.classifications = classes;
@@ -535,27 +535,27 @@ func renderUIPage(pluginID string) []byte {
         if (hit.ok) return { ok: true, report: hit };
         return { ok: false, error: hit.error || (act + ' failed'), report: hit };
       }
-      lastErr = '仍在执行…';
-      render(); // show row-busy / 执行中
+      lastErr = 'Still processing...';
+      render(); // show row-busy / Processing
       await sleep(200);
     }
-    return { ok: false, error: lastErr || '操作超时，请刷新后确认是否已生效' };
+    return { ok: false, error: lastErr || 'Action timed out, please refresh to confirm if it took effect' };
   }
   async function runRowAction(r, act, tr) {
     const key = rowKey(r);
     if (!key || pendingOps.has(key)) return;
     if (!hasManagementKey()) {
-      showErr('请先填写 CPA Management Key');
+      showErr('Please enter the CPA Management Key first');
       return;
     }
-    const label = act === 'delete' ? '删除' : (act === 'enable' ? '启用' : '禁用');
+    const label = act === 'delete' ? 'Delete' : (act === 'enable' ? 'Enable' : 'Disable');
     if (act === 'delete') {
-      const ok = await confirmDialog('删除确认', '将删除 CPA Auth 凭证「' + (r.name || key) + '」。\n此操作不可恢复，确认继续？');
+      const ok = await confirmDialog('Delete Confirmation', 'This will delete CPA Auth credential "' + (r.name || key) + '".\nThis action cannot be undone. Confirm?');
       if (!ok) return;
     }
     pendingOps.add(key);
     if (tr) tr.classList.add('row-busy');
-    showOk(label + '执行中：' + (r.name || key));
+    showOk(label + 'Processing：' + (r.name || key));
     render();
     try {
       const result = await api('/action', {
@@ -568,16 +568,16 @@ func renderUIPage(pluginID string) []byte {
         })
       });
       if (!result || result.ok === false) {
-        throw new Error((result && result.error) || (label + '失败'));
+        throw new Error((result && result.error) || (label + ' failed'));
       }
       const seq = Number(result.action_seq || 0);
       if (!seq) {
-        throw new Error('服务端未返回 action_seq，无法确认执行结果');
+        throw new Error('Server did not return action_seq, cannot confirm result');
       }
       // Wait for server completion via light status (not optimistic success).
       const confirmed = await waitRowActionConfirmed(seq, key, act, 30000);
       if (!confirmed.ok) {
-        throw new Error(confirmed.error || (label + '失败'));
+        throw new Error(confirmed.error || (label + ' failed'));
       }
       // Confirmed success → pull full results once, then UI feedback.
       await refresh({ light: false });
@@ -589,9 +589,9 @@ func renderUIPage(pluginID string) []byte {
           await sleep(180);
           render();
         }
-        showOk('删除成功：' + (r.name || key));
+        showOk('Deleted: ' + (r.name || key));
       } else {
-        showOk((act === 'disable' ? '禁用成功：' : '启用成功：') + (r.name || key));
+        showOk((act === 'disable' ? 'Disabled: ' : 'Enabled: ') + (r.name || key));
       }
     } catch (e) {
       showErr(String(e.message || e));
@@ -601,12 +601,12 @@ func renderUIPage(pluginID string) []byte {
       render();
     }
   }
-  // 批量禁用：只针对当前分类下「已启用」的号；批量启用：只针对「已禁用」的号。
+  // Bulk Disable: only targets "Enabled" accounts in current classification; Bulk Enable: only targets "Disabled" accounts.
   function filteredRowsForAction(action) {
     const rows = filtered();
     if (action === 'disable') return rows.filter((r) => !r.disabled);
     if (action === 'enable') return rows.filter((r) => !!r.disabled);
-    return rows; // delete / export 用全部分类内账号
+    return rows; // delete / export uses all accounts across classifications
   }
   function filteredAuthIndexesForAction(action) {
     return filteredRowsForAction(action).map(rowKey).filter(Boolean);
@@ -616,34 +616,34 @@ func renderUIPage(pluginID string) []byte {
     const indexes = targetRows.map(rowKey).filter(Boolean);
     if (!targetRows.length || !indexes.length) {
       const tip = action === 'disable'
-        ? '没有「已启用」可禁用的账号'
-        : (action === 'enable' ? '没有「已禁用」可启用的账号' : '没有可操作的账号');
-      showErr('当前分类「' + filterLabel() + '」下' + tip);
+        ? 'No "Enabled" accounts to disable'
+        : (action === 'enable' ? 'No "Disabled" accounts to enable' : 'No accounts to process');
+      showErr('Current Classification「' + filterLabel() + '」 in ' + tip);
       return;
     }
-    const label = action === 'delete' ? '删除' : (action === 'enable' ? '启用' : '禁用');
+    const label = action === 'delete' ? 'Delete' : (action === 'enable' ? 'Enable' : 'Disable');
     const stateHint = action === 'disable'
-      ? '仅包含当前列表中状态为「已启用」的账号。'
-      : (action === 'enable' ? '仅包含当前列表中状态为「已禁用」的账号。' : '包含当前分类下全部账号。');
+      ? 'Only includes accounts with "Enabled" status in current list.'
+      : (action === 'enable' ? 'Only includes accounts with "Disabled" status in current list.' : 'Includes all accounts in current classification.');
     let extra = '';
     if (action === 'delete') {
       extra =
-        '将调用 CPA 本体批量删除接口（DELETE /auth-files，每批最多 50 个），并更新本地结果。\n' +
-        '此操作不可恢复。';
+        'Will call CPA Bulk Delete API (DELETE /auth-files, max 50 per batch) and update local results.\n' +
+        'This action cannot be undone.';
     } else {
       extra =
-        '将通过 CPA Management API ' + label + '账号，并更新本地结果。\n' +
-        '说明：CPA 本体没有批量启用/禁用接口，只能逐个调用 PATCH（插件侧会并发约 6 路），' +
-        '账号多时可能较慢，上方会显示进度。\n' +
-        '若需要更快清理，可改用「批量删除」（本体支持一次删多个）。';
+        'Will call CPA Management API to ' + label + ' accounts and update local results.\n' +
+        'Note: CPA has no Bulk Enable/Disable API; it calls PATCH individually (plugin concurrency ~6),' +
+        'Large numbers may be slow; progress shown above.\n' +
+        'For faster cleanup, use "Bulk Delete" (supports batch deletion).';
     }
     const ok = await confirmDialog(
-      '批量' + label + '确认',
-      '当前分类：' + filterLabel() + '\n' +
-      '影响账号：' + indexes.length + ' 个\n' +
+      'Bulk ' + label + ' Confirmation',
+      'Current Classification：' + filterLabel() + '\n' +
+      'Affected accounts: ' + indexes.length + '\n' +
       stateHint + '\n\n' +
-      '将对上述账号执行批量' + label + '。\n' + extra + '\n\n' +
-      '请确认是否继续？'
+      'The following batch action will be applied: ' + label + '.\n' + extra + '\n\n' +
+      'Please confirm to continue.'
     );
     if (!ok) return;
     try {
@@ -655,7 +655,7 @@ func renderUIPage(pluginID string) []byte {
         })
       });
       const total = Number(result && result.apply_total || indexes.length || 0);
-      showOk('批量' + label + '已启动：共 ' + total + ' 项（后台执行，进度见上方状态）');
+      showOk('Bulk ' + label + ' started: ' + total + ' items (running in background, see progress above)');
       await refresh();
     } catch (e) {
       showErr(String(e.message || e));
@@ -664,20 +664,20 @@ func renderUIPage(pluginID string) []byte {
   async function batchExport() {
     const rows = filtered();
     if (!rows.length) {
-      showErr('当前分类「' + filterLabel() + '」下没有可导出的数据');
+      showErr('No data to export in current classification: ' + filterLabel());
       return;
     }
     const ok = await confirmDialog(
-      '批量导出确认',
-      '当前分类：' + filterLabel() + '\n' +
-      '导出条数：' + rows.length + ' 条\n\n' +
-      '将导出当前分类下的全部账号（不是仅当前页）为 JSON 文件。\n\n' +
-      '请确认是否继续？'
+      'Batch ExportConfirm',
+      'Current Classification：' + filterLabel() + '\n' +
+      'Exporting ' + rows.length + ' records.\n\n' +
+      'Exports all accounts in current classification (not just current page) as a JSON file.\n\n' +
+      'Please confirm to continue.'
     );
     if (!ok) return;
     exportRows('json');
   }
-  // Persist key on input (not only blur/change) so paste + click 开始 doesn't lose it next visit.
+  // Persist key on input (not only blur/change) so paste + click Start doesn't lose it next visit.
   let keySaveTimer = null;
   keyInput.addEventListener('input', () => {
     keySource = 'manual';
@@ -695,10 +695,10 @@ func renderUIPage(pluginID string) []byte {
   if (bootKey) persistManagementKey(bootKey);
   updateAuthState();
   const classLabel = {
-    healthy: '健康', permission_denied: '权限被拒', quota_exhausted: '额度用尽',
-    reauth: '需重新登录', model_unavailable: '模型不可用', probe_error: '探测异常', unknown: '未知'
+    healthy: 'Healthy', permission_denied: 'Permission Denied', quota_exhausted: 'Quota Exhausted',
+    reauth: 'Needs Re-login', model_unavailable: 'Model Unavailable', probe_error: 'Probe Error', unknown: 'Unknown'
   };
-  const actionLabel = { keep: '保留', disable: '禁用', enable: '启用', delete: '删除' };
+  const actionLabel = { keep: 'Keep', disable: 'Disable', enable: 'Enable', delete: 'Delete' };
   const color = {
     healthy: '#047857', permission_denied: '#b45309', quota_exhausted: '#b45309',
     reauth: '#b91c1c', model_unavailable: '#475569', probe_error: '#b91c1c', unknown: '#475569'
@@ -723,7 +723,7 @@ func renderUIPage(pluginID string) []byte {
   function filtered() {
     const rows = state.snapshot.results || [];
     if (state.filter === 'all') return rows;
-    // 「异常」= 探测异常 / 模型不可用 / 未知 等非主分类
+    // 'Other' = Probe Error / Model Unavailable / Unknown etc. non-primary classifications
     if (state.filter === 'other') {
       return rows.filter((r) => {
         const c = r.classification || '';
@@ -734,12 +734,12 @@ func renderUIPage(pluginID string) []byte {
   }
   function filterLabel() {
     const map = {
-      all: '全部',
-      healthy: '健康',
-      permission_denied: '权限被拒',
-      quota_exhausted: '额度用尽',
-      reauth: '需重登',
-      other: '异常'
+      all: 'All',
+      healthy: 'Healthy',
+      permission_denied: 'Permission Denied',
+      quota_exhausted: 'Quota Exhausted',
+      reauth: 'Re-login',
+      other: 'Other'
     };
     return map[state.filter] || state.filter;
   }
@@ -780,7 +780,7 @@ func renderUIPage(pluginID string) []byte {
   function exportRows(format) {
     const rows = filtered().map(sanitizeExportRow);
     if (!rows.length) {
-      showErr('当前筛选下没有可导出的数据');
+      showErr('No data to export in current filter.');
       return;
     }
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -818,12 +818,12 @@ func renderUIPage(pluginID string) []byte {
     const snap = state.snapshot || {};
     const summary = snap.summary || {};
     const cards = [
-      ['total','全部', summary.total || 0],
-      ['healthy','健康', summary.healthy || 0],
-      ['permission_denied','权限被拒', summary.permission_denied || 0],
-      ['quota_exhausted','额度用尽', summary.quota_exhausted || 0],
-      ['reauth','需重登', summary.reauth || 0],
-      ['other','异常', summary.other || 0],
+      ['total','All', summary.total || 0],
+      ['healthy','Healthy', summary.healthy || 0],
+      ['permission_denied','Permission Denied', summary.permission_denied || 0],
+      ['quota_exhausted','Quota Exhausted', summary.quota_exhausted || 0],
+      ['reauth','Re-login', summary.reauth || 0],
+      ['other','Other', summary.other || 0],
     ];
     $('summary').innerHTML = cards.map(([key,label,value]) => {
       const active = (key === 'total' && state.filter === 'all') || state.filter === key;
@@ -835,7 +835,7 @@ func renderUIPage(pluginID string) []byte {
     });
 
     const rows = filtered();
-    $('exportHint').textContent = '当前分类：' + filterLabel() + '（' + rows.length + ' 条）';
+    $('exportHint').textContent = 'Classification: ' + filterLabel() + ' (' + rows.length + ' records)';
     const totalPages = Math.max(1, Math.ceil(rows.length / state.pageSize));
     if (state.page > totalPages) state.page = totalPages;
     const start = (state.page - 1) * state.pageSize;
@@ -845,25 +845,25 @@ func renderUIPage(pluginID string) []byte {
       tbody.innerHTML = '';
       $('empty').style.display = 'block';
       $('empty').textContent = hasManagementKey()
-        ? '点击“开始巡检”检测 Grok 账号'
-        : '请输入 CPA Management Key 后加载巡检状态';
+        ? 'Click“Start Inspection”inspect Grok accounts'
+        : 'Enter CPA Management Key to load inspection status';
     } else {
       $('empty').style.display = 'none';
       tbody.innerHTML = pageRows.map((r) => {
         const key = rowKey(r);
         const busy = pendingOps.has(key) || !!snap.applying;
         const toggleAct = r.disabled ? 'enable' : 'disable';
-        const toggleLabel = r.disabled ? '启用' : '禁用';
+        const toggleLabel = r.disabled ? 'Enable' : 'Disable';
         // Every row always offers toggle + delete (not only classification-suggested action).
         const actionBtns = hasManagementKey()
           ? '<div class="row-actions">' +
               '<button type="button" data-act="' + toggleAct + '" ' + (busy ? 'disabled' : '') + '>' + toggleLabel + '</button>' +
-              '<button type="button" class="danger" data-act="delete" ' + (busy ? 'disabled' : '') + '>删除</button>' +
+              '<button type="button" class="danger" data-act="delete" ' + (busy ? 'disabled' : '') + '>Delete</button>' +
             '</div>'
           : '-';
         return '<tr data-key="' + escapeHtml(key) + '"' + (busy ? ' class="row-busy"' : '') + '>' +
           '<td class="col-name">' + escapeHtml(r.name) + '</td>' +
-          '<td class="col-status">' + pill(r.disabled ? '已禁用' : '已启用', r.disabled ? '#b45309' : '#047857') + '</td>' +
+          '<td class="col-status">' + pill(r.disabled ? 'Disabled' : 'Enabled', r.disabled ? '#b45309' : '#047857') + '</td>' +
           '<td class="col-result">' + pill(classLabel[r.classification] || r.classification || '-', color[r.classification] || '#475569') + '</td>' +
           '<td class="col-http">' + (r.http_status || '-') + '</td>' +
           '<td class="col-model">' + escapeHtml(r.model || '-') + '</td>' +
@@ -884,14 +884,14 @@ func renderUIPage(pluginID string) []byte {
     const from = rows.length ? start + 1 : 0;
     const to = Math.min(rows.length, start + state.pageSize);
     $('pager').innerHTML =
-      '<div style="font-size:12px;color:#64748b">显示 ' + from + '-' + to + ' / ' + rows.length +
-      ' · 每页 <select id="pageSize">' +
+      '<div style="font-size:12px;color:#64748b">Showing ' + from + '-' + to + ' / ' + rows.length +
+      ' · Per page <select id="pageSize">' +
       [20,50,100].map((n) => '<option value="' + n + '"' + (state.pageSize===n?' selected':'') + '>' + n + '</option>').join('') +
       '</select></div>' +
       '<div style="display:flex;gap:8px;align-items:center">' +
-      '<button id="prev"' + (state.page<=1?' disabled':'') + '>上一页</button>' +
+      '<button id="prev"' + (state.page<=1?' disabled':'') + '>Previous</button>' +
       '<span style="font-size:12px;color:#475569">' + state.page + ' / ' + totalPages + '</span>' +
-      '<button id="next"' + (state.page>=totalPages?' disabled':'') + '>下一页</button></div>';
+      '<button id="next"' + (state.page>=totalPages?' disabled':'') + '>Next</button></div>';
     const ps = $('pageSize'); if (ps) ps.onchange = () => {
       state.pageSize = Number(ps.value)||20;
       savePrefs({ pageSize: state.pageSize });
@@ -903,8 +903,8 @@ func renderUIPage(pluginID string) []byte {
 
     const actionCount = (snap.results || []).filter((r) => r.action === 'disable' || r.action === 'enable' || r.action === 'delete').length;
     const filteredCount = rows.length;
-    const disableCount = rows.filter((r) => !r.disabled).length; // 当前分类下已启用 → 可禁用
-    const enableCount = rows.filter((r) => !!r.disabled).length;  // 当前分类下已禁用 → 可启用
+    const disableCount = rows.filter((r) => !r.disabled).length; // Enabled accounts in current classification → can Disable
+    const enableCount = rows.filter((r) => !!r.disabled).length;  // Disabled accounts in current classification → can Enable
     const busy = !!(snap.running || snap.applying);
     const hasResults = (snap.results || []).length > 0;
     const filterCount = state.filter === 'all' ? 0 : filteredCount;
@@ -912,7 +912,7 @@ func renderUIPage(pluginID string) []byte {
     $('incrBtn').disabled = !hasManagementKey() || busy || !hasResults;
     if ($('filterRunBtn')) {
       $('filterRunBtn').disabled = !hasManagementKey() || busy || state.filter === 'all' || filterCount === 0;
-      $('filterRunBtn').textContent = filterCount ? ('巡检当前分类 (' + filterCount + ')') : '巡检当前分类';
+      $('filterRunBtn').textContent = filterCount ? ('Inspect Current Classification (' + filterCount + ')') : 'Inspect Current Classification';
     }
     $('stopBtn').disabled = !hasManagementKey() || !snap.running;
     $('applyBtn').disabled = !hasManagementKey() || busy || actionCount === 0;
@@ -921,44 +921,44 @@ func renderUIPage(pluginID string) []byte {
     $('batchEnableBtn').disabled = !hasManagementKey() || busy || enableCount === 0;
     $('batchDeleteBtn').disabled = !hasManagementKey() || busy || filteredCount === 0;
     $('applyBtn').textContent = snap.applying
-      ? ('执行中 ' + (snap.apply_done||0) + '/' + (snap.apply_total||0))
-      : (actionCount ? ('执行建议操作 (' + actionCount + ')') : '执行建议操作');
-    $('batchExportBtn').textContent = filteredCount ? ('批量导出 (' + filteredCount + ')') : '批量导出';
-    $('batchDisableBtn').textContent = disableCount ? ('批量禁用 (' + disableCount + ')') : '批量禁用';
-    $('batchEnableBtn').textContent = enableCount ? ('批量启用 (' + enableCount + ')') : '批量启用';
-    $('batchDeleteBtn').textContent = filteredCount ? ('批量删除 (' + filteredCount + ')') : '批量删除';
+      ? ('Processing ' + (snap.apply_done||0) + '/' + (snap.apply_total||0))
+      : (actionCount ? ('Apply Recommended (' + actionCount + ')') : 'Apply Recommended');
+    $('batchExportBtn').textContent = filteredCount ? ('Batch Export (' + filteredCount + ')') : 'Batch Export';
+    $('batchDisableBtn').textContent = disableCount ? ('Bulk Disable (' + disableCount + ')') : 'Bulk Disable';
+    $('batchEnableBtn').textContent = enableCount ? ('Bulk Enable (' + enableCount + ')') : 'Bulk Enable';
+    $('batchDeleteBtn').textContent = filteredCount ? ('Bulk Delete (' + filteredCount + ')') : 'Bulk Delete';
     if (!hasManagementKey()) {
-      setProgress('请输入 CPA Management Key 后加载巡检状态', false);
+      setProgress('Enter CPA Management Key to load inspection status', false);
     } else if (snap.applying) {
-      let msg = '后台执行操作 ' + (snap.apply_done||0) + '/' + (snap.apply_total||0) + (snap.apply_current ? '：' + snap.apply_current : '');
-      if ((snap.apply_failures || []).length) msg += '；失败 ' + snap.apply_failures.length;
+      let msg = 'Running action ' + (snap.apply_done||0) + '/' + (snap.apply_total||0) + (snap.apply_current ? ': ' + snap.apply_current : '');
+      if ((snap.apply_failures || []).length) msg += '； failed ' + snap.apply_failures.length;
       setProgress(msg, true);
     } else if (snap.running) {
       const scoped = Array.isArray(snap.classifications) && snap.classifications.length > 0;
-      const mode = scoped ? '分类巡检中' : (snap.incremental ? '增量巡检中' : '巡检中');
-      const extra = scoped ? '（仅当前分类，保留其他结果）' : (snap.incremental ? '（仅新增，保留已有结果）' : '（后台继续）');
+      const mode = scoped ? 'Class Inspecting...' : (snap.incremental ? 'Incremental' : 'Inspecting...');
+      const extra = scoped ? '(current class only, others kept)' : (snap.incremental ? '(new only, existing kept)' : '(running in background)');
       let phase = '';
       if (snap.probe_phase === 'retry') {
-        phase = ' · 超时复检 ' + (snap.retry_done||0) + '/' + (snap.retry_total||0) + ' · 复检并发 ' + (snap.retry_workers||1);
+        phase = ' · slow-retry ' + (snap.retry_done||0) + '/' + (snap.retry_total||0) + ' · retry concurrency ' + (snap.retry_workers||1);
       }
-      setProgress(mode + ' ' + (snap.done||0) + '/' + (snap.total||0) + ' · 并发 ' + (snap.workers||WORKERS_DEFAULT) + phase + extra, true);
+      setProgress(mode + ' ' + (snap.done||0) + '/' + (snap.total||0) + ' · Concurrency ' + (snap.workers||WORKERS_DEFAULT) + phase + extra, true);
     } else if (snap.stopped) {
       const scoped = Array.isArray(snap.classifications) && snap.classifications.length > 0;
-      const mode = scoped ? '分类已停止' : (snap.incremental ? '增量已停止' : '已停止');
-      setProgress(mode + '，本轮 ' + (snap.done||0) + (snap.total ? '/' + snap.total : '') + '，列表共 ' + ((snap.results||[]).length) + ' 个账号', false);
+      const mode = scoped ? 'Class stopped' : (snap.incremental ? 'Incremental stopped' : 'Stopped');
+      setProgress(mode + ', round: ' + (snap.done||0) + (snap.total ? '/' + snap.total : '') + ', total: ' + ((snap.results||[]).length) + ' accounts total', false);
     } else if ((snap.results||[]).length) {
       const scoped = Array.isArray(snap.classifications) && snap.classifications.length > 0;
-      let msg = '巡检完成，共 ' + (snap.results||[]).length + ' 个账号';
+      let msg = 'Inspection complete, ' + (snap.results||[]).length + ' accounts total';
       if (scoped && (snap.done||0) >= 0 && snap.total != null) {
-        msg = '分类完成：本轮检测 ' + (snap.done||0) + ' 个，列表共 ' + (snap.results||[]).length + ' 个';
+        msg = 'Class done: ' + (snap.done||0) + ' inspected, total: ' + (snap.results||[]).length + ' total';
       } else if (snap.incremental && (snap.done||0) >= 0 && snap.total != null) {
-        msg = '增量完成：本轮新增检测 ' + (snap.done||0) + ' 个，列表共 ' + (snap.results||[]).length + ' 个';
+        msg = 'Incremental done: ' + (snap.done||0) + ' inspected, total: ' + (snap.results||[]).length + ' total';
       }
-      if (snap.store_path) msg += ' · 已落盘';
-      if ((snap.apply_failures || []).length) msg += ' · 上次操作失败 ' + snap.apply_failures.length + ' 条';
+      if (snap.store_path) msg += ' · saved to disk';
+      if ((snap.apply_failures || []).length) msg += ' · last action failed ' + snap.apply_failures.length + ' item(s)';
       setProgress(msg, false);
     } else {
-      setProgress('等待开始', false);
+      setProgress('Waiting to start', false);
     }
     if ((snap.apply_failures || []).length && !snap.applying) {
       // Always surface last op failures under the progress line (not below the table).
@@ -1098,17 +1098,17 @@ func renderUIPage(pluginID string) []byte {
   $('applyBtn').onclick = async () => {
     const actionCount = (state.snapshot.results || []).filter((r) => r.action === 'disable' || r.action === 'enable' || r.action === 'delete').length;
     const ok = await confirmDialog(
-      '执行建议操作确认',
-      '将对全部结果中「有建议动作」的账号异步执行禁用/启用/删除（共 ' + actionCount + ' 条建议）。\n' +
-      '说明：此操作按建议执行，不受上方卡片当前分类限制。\n\n' +
-      '请确认是否继续？'
+      'Apply RecommendedConfirm',
+      'Will apply to all accounts withrecommended actions: Disable/Enable/Delete(' + actionCount + ' item(s)Recommendation）。\n' +
+      'Note: This action follows recommendations and is not limited by the current classification filter.\n\n' +
+      'Please confirm to continue.'
     );
     if (!ok) return;
     try {
       const result = await api('/apply', { method: 'POST', body: '{}' });
       const total = Number(result && result.apply_total || 0);
-      if (result && result.ok === false) throw new Error(result.error || '启动失败');
-      showOk(total ? ('建议操作已在后台执行：共 ' + total + ' 项') : '建议操作已启动');
+      if (result && result.ok === false) throw new Error(result.error || 'Failed to start');
+      showOk(total ? ('Recommended actions started in background: ' + total + ' items') : 'Recommended actions started');
       await refresh();
     }
     catch (e) { showErr(String(e.message || e)); }
