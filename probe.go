@@ -14,7 +14,7 @@ import (
 const (
 	// xAI /v1/models currently only advertises grok-4.5; requesting that ID is remapped
 	// upstream to grok-4.5-build-free for free accounts. Direct model id grok-4.5-build-free returns 404.
-	defaultProbeModel          = "grok-4.5"
+	defaultProbeModel          = "grok-4.3"
 	xaiResponsesURL            = "https://cli-chat-proxy.grok.com/v1/responses"
 	xaiChatCompletionsURL      = "https://cli-chat-proxy.grok.com/v1/chat/completions"
 	xaiInspectionClientVersion = "0.2.93"
