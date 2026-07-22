@@ -164,7 +164,10 @@ func classifyProbe(input classifyInput) classifyResult {
 			Reason:         "临时限流 (HTTP 429)，建议稍后重试",
 		}
 	}
-	if status == http.StatusPaymentRequired || status == http.StatusForbidden || containsAny(blob,
+	if status == http.StatusPaymentRequired || containsAny(blob, "personal-team-blocked:spending-limit", "run out of credits") {
+		return classifyResult{Classification: "other", Action: "delete", Reason: "余额耗尽 / 限制 (HTTP 402)"}
+	}
+	if status == http.StatusForbidden || containsAny(blob,
 		"permission-denied",
 		"chat endpoint is denied",
 		"deactivated",
